@@ -3,10 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Transaction_Detail extends Model
+class Transaction_Detail extends BaseModel
 {
     /** @use HasFactory<\Database\Factories\TransactionDetailFactory> */
     use HasFactory;
+
+    public function menu()
+    {
+        return $this->belongsTo(Menu::class);
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
+    }
 }
