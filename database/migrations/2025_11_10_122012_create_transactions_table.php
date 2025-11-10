@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('change_amount');
             $table->string('payment_method');
             $table->uuid('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('categories')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

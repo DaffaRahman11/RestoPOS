@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('transaction_id');
             $table->foreign('transaction_id')->references('id')->on('transactions')->cascadeOnDelete();
-            $table->uuid('produmenu_idct_id');
+            $table->uuid('menu_id');
             $table->foreign('menu_id')->references('id')->on('menus')->cascadeOnDelete();
             $table->integer('quantity');
             $table->integer('unit_price');

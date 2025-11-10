@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stock__mutations', function (Blueprint $table) {
+        Schema::create('stock_mutations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('ingredient_id');
             $table->foreign('ingredient_id')->references('id')->on('ingredients')->cascadeOnDelete();
