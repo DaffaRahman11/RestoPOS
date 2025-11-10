@@ -36,7 +36,7 @@
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 </head>
 
-<body class="gradient-bg min-h-full font-sans">
+<body id="{{ Route::is('transaction.create') ? 'page-transaction' : '' }}" class="gradient-bg min-h-full font-sans">
   <div class="flex h-full">
     <!-- Sidebar -->
     <div id="sidebar"

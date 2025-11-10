@@ -491,6 +491,10 @@ function selectPayment(value, label) {
 // Inisialisasi halaman (perbaikan)
 // ==========================
 document.addEventListener("DOMContentLoaded", () => {
+
+    const isTransactionPage = document.body.id === "page-transaction";
+    if (!isTransactionPage) return;
+
     const searchInput = document.getElementById("search-input");
     const tableBody = document.getElementById("products-table-body");
     const amountPaidInput = document.getElementById("amount-paid");
