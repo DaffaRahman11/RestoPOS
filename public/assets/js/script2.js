@@ -106,64 +106,78 @@ function removeTopRightAlert(id) {
 // ==========================
 // Fungsi untuk load produk
 // ==========================
-async function fetchProducts() {
+async function fetchMenus() {
     try {
-        const res = await fetch(`${baseUrl}/api/products/getData`);
-        return await res.json();
+        const res = await fetch(`${baseUrl}/api/menus/getData`);
+        const json = await res.json();
+        if (!json.success) return [];
+        return json.data;
     } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching menus:", error);
         return [];
     }
 }
 
-function renderProductRow(product) {
+
+function renderMenuRow(menu) {
     const row = document.createElement("tr");
     row.className = "hover:bg-green-50 transition-all duration-200";
 
-    if (addedProductIds.has(product.id)) {
+    // disable jika max_portion <= 0
+    if (menu.max_portion <= 0) {
         row.classList.add("opacity-50", "pointer-events-none", "bg-gray-100");
     }
 
     row.innerHTML = `
-        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm font-medium text-gray-800">${product.barcode}</td>
-        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm text-gray-800 cursor-pointer hover:text-emerald-600 transition-colors">${product.name}</td>
-        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm font-semibold text-green-700">Rp${Number(product.selling_price).toLocaleString("id-ID")}</td>
-        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm text-gray-600 hidden sm:table-cell">${product.category?.name || "-"}</td>
-        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm">
-            <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">${productStocks[product.id]}</span>
+        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm font-medium text-gray-800">${menu.name}</td>
+        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm font-semibold text-green-700">Rp${Number(menu.price).toLocaleString("id-ID")}</td>
+        <td class="px-3 lg:px-6 py-3 text-xs lg:text-sm text-gray-600">
+            <span>${menu.max_portion}</span>
         </td>
         <td class="px-3 lg:px-6 py-3 text-center">
-            <button data-id="${product.id}" class="add-to-cart px-3 py-2 text-white text-xs font-semibold rounded-lg transition-all duration-200 bg-emerald-500 hover:bg-emerald-600">Tambah</button>
+            <button data-id="${menu.id}" class="add-to-cart px-3 py-2 text-white text-xs font-semibold rounded-lg transition-all duration-200 bg-emerald-500 hover:bg-emerald-600">Tambah</button>
         </td>
     `;
-    row.dataset.id = product.id;
-    row.dataset.price = product.selling_price;
+
+    // simpan data di dataset
+    row.dataset.id = menu.id;
+    row.dataset.name = menu.name;
+    row.dataset.price = menu.price;
+    row.dataset.maxPortion = menu.max_portion;
+
     return row;
 }
 
-async function loadProducts() {
+async function loadMenus() {
     const tableBody = document.getElementById("products-table-body");
-    const products = await fetchProducts();
+    const menus = await fetchMenus();
 
-    products.forEach(product => {
-        productStocks[product.id] = product.stock;
+    menus.forEach(menu => {
+        // simpan max_portion di productStocks
+        productStocks[menu.id] = menu.max_portion;
 
-        // cek apakah tr untuk product.id sudah ada
-        let row = tableBody.querySelector(`tr[data-id="${product.id}"]`);
+        let row = tableBody.querySelector(`tr[data-id="${menu.id}"]`);
+
         if (row) {
-            // update stock & harga
-            row.querySelector("span").textContent = productStocks[product.id];
-            row.querySelector("td:nth-child(3)").textContent = "Rp" + Number(product.selling_price).toLocaleString("id-ID");
-            row.dataset.price = product.selling_price;
+            // update harga
+            row.querySelector("td:nth-child(2)").textContent = "Rp" + Number(menu.price).toLocaleString("id-ID");
+            row.dataset.price = menu.price;
+            row.dataset.maxPortion = menu.max_portion;
 
-            if (addedProductIds.has(product.id)) {
+            // jika menu sudah ada di checkout, disable tr
+            if (addedProductIds.has(menu.id) || menu.max_portion <= 0) {
                 row.classList.add("opacity-50", "pointer-events-none", "bg-gray-100");
             } else {
                 row.classList.remove("opacity-50", "pointer-events-none", "bg-gray-100");
             }
+
+            // update sisa porsi dari productStocks dikurangi checkout qty
+            const checkoutQty = getCheckoutQuantity(menu.id);
+            const remaining = productStocks[menu.id] - checkoutQty;
+            row.querySelector("span").textContent = remaining >= 0 ? remaining : 0;
+
         } else {
-            // tr belum ada → buat baru
-            row = renderProductRow(product);
+            row = renderMenuRow(menu);
             tableBody.appendChild(row);
         }
     });
@@ -172,9 +186,48 @@ async function loadProducts() {
 }
 
 
+
 // ==========================
 // Fungsi Checkout
 // ==========================
+function updateCheckoutItems() {
+    const checkoutList = document.getElementById("checkout-items-list");
+
+    checkoutList.querySelectorAll(".checkout-item").forEach(itemCard => {
+        const id = itemCard.dataset.id;
+        const tr = document.querySelector(`button.add-to-cart[data-id="${id}"]`)?.closest("tr");
+        if (!tr) return;
+
+        const basePrice = parseInt(tr.dataset.price);
+        const quantityInput = itemCard.querySelector(".quantity-input");
+        const priceDisplay = itemCard.querySelector(".price-display");
+
+        let qty = parseInt(quantityInput.value) || 0;
+
+        // jangan biarkan qty melebihi stok aktual
+        const maxStock = productStocks[id];
+        if (qty > maxStock) qty = maxStock;
+        quantityInput.value = qty;
+
+        // update harga
+        priceDisplay.textContent = "Rp" + (basePrice * qty).toLocaleString("id-ID");
+
+        // update sisa porsi di tabel
+        const remaining = maxStock - qty;
+        tr.querySelector("span").textContent = remaining >= 0 ? remaining : 0;
+
+        // disable tr kalau habis
+        if (remaining <= 0) {
+            tr.classList.add("opacity-50", "pointer-events-none", "bg-gray-100");
+        } else {
+            if (!addedProductIds.has(id)) {
+                tr.classList.remove("opacity-50", "pointer-events-none", "bg-gray-100");
+            }
+        }
+    });
+}
+
+
 function updateCheckoutItems() {
     const checkoutList = document.getElementById("checkout-items-list");
 
@@ -227,7 +280,6 @@ function addItemToCheckout(tr, id, name, priceText) {
     addedProductIds.add(id);
     tr.classList.add("opacity-50", "pointer-events-none", "bg-gray-100");
 
-    // tampilkan container checkout dan sembunyikan empty state
     checkoutContainer.classList.remove("hidden");
     emptyCheckout.classList.add("hidden");
 
@@ -245,7 +297,7 @@ function addItemToCheckout(tr, id, name, priceText) {
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <button class="decrease w-7 h-7 bg-emerald-200 hover:bg-emerald-300 rounded-lg text-xs font-bold text-emerald-700">-</button>
-                <input type="number" value="0" min="0" max="${maxStock}" class="quantity-input w-12 h-7 text-center font-medium border border-gray-300 rounded-lg text-xs">
+                <input type="number" value="1" min="1" max="${maxStock}" class="quantity-input w-12 h-7 text-center font-medium border border-gray-300 rounded-lg text-xs">
                 <button class="increase w-7 h-7 bg-emerald-200 hover:bg-emerald-300 rounded-lg text-xs font-bold text-emerald-700">+</button>
             </div>
             <span class="price-display font-semibold text-emerald-700 text-sm" data-price="${priceText}">
@@ -255,10 +307,15 @@ function addItemToCheckout(tr, id, name, priceText) {
     `;
 
     checkoutList.appendChild(itemCard);
+
+    // update sisa porsi di tabel setelah card dibuat
+    tr.querySelector("span").textContent = maxStock - 1;
+
     setupCheckoutItemEvents(itemCard, tr, id);
     updateTotalAmount();
     syncCheckoutDataToForm();
 }
+
 
 
 // Setup event untuk quantity & remove
@@ -500,6 +557,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const amountPaidInput = document.getElementById("amount-paid");
     const changeAmountEl = document.getElementById("change-amount");
     const payButton = document.getElementById("pay-button");
+    const clearBtn = document.getElementById("clear-search");
+
 
     
 
@@ -544,8 +603,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // load produk & interval
-    loadProducts();
-    setInterval(loadProducts, 5000);
+    loadMenus();
+    setInterval(loadMenus, 5000);
 
     // klik tombol "Tambah"
     tableBody.addEventListener("click", e => {
@@ -554,12 +613,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const tr = btn.closest("tr");
         const id = btn.dataset.id;
-        const name = tr.children[1].textContent.trim();
-        const priceText = tr.children[2].textContent.replace(/[^\d]/g, "");
+        const name = tr.dataset.name; // pake dataset
+        const priceText = tr.dataset.price; // pake dataset
 
         addItemToCheckout(tr, id, name, priceText);
         focusToQuantityInput(id);
     });
+
 
     // deteksi barcode di search
     if (searchInput) {
@@ -588,64 +648,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // 🔹 Deteksi apakah input diawali angka (barcode) atau huruf (nama)
-            const isBarcode = /^[0-9]/.test(value);
-
-            if (isBarcode) {
-                // 🔸 Mode barcode → cari yang match persis
-                const barcodeMatch = rows.find(tr => {
-                    const barcode = tr.children[0].textContent.trim().toLowerCase();
-                    return barcode === value;
-                });
-
-                if (barcodeMatch) {
-                    const id = barcodeMatch.dataset.id;
-                    const name = barcodeMatch.children[1].textContent.trim();
-                    const priceText = barcodeMatch.children[2].textContent.replace(/[^\d]/g, "");
-
-                    if (!addedProductIds.has(id)) {
-                        addItemToCheckout(barcodeMatch, id, name, priceText);
-                        focusToQuantityInput(id);
-                    }
-
-                    searchInput.value = "";
-                    rows.forEach(tr => tr.classList.remove("hidden"));
-                    return;
-                } 
-                // else {
-                //     // kalau barcode tidak ditemukan
-                //     rows.forEach(tr => tr.classList.add("hidden"));
-                //     notFoundMsg.textContent = "Maaf, pencarian berdasarkan barcode tidak ditemukan.";
-                //     notFoundMsg.classList.remove("hidden");
-                //     return;
-                // }
-
-            } else {
-                // 🔸 Mode nama produk → filter tampilan saja
-                let foundCount = 0;
-                rows.forEach(tr => {
-                    const name = tr.children[1].textContent.trim().toLowerCase();
-                    if (name.includes(value)) {
-                        tr.classList.remove("hidden");
-                        foundCount++;
-                    } else {
-                        tr.classList.add("hidden");
-                    }
-                });
-
-                // tampilkan pesan kalau tidak ada hasil
-                if (foundCount === 0) {
-                    notFoundMsg.textContent = "Maaf, pencarian berdasarkan nama tidak ditemukan.";
-                    notFoundMsg.classList.remove("hidden");
+            let foundCount = 0;
+            rows.forEach(tr => {
+                const name = tr.dataset.name.toLowerCase(); // pake dataset
+                if (name.includes(value)) {
+                    tr.classList.remove("hidden");
+                    foundCount++;
+                } else {
+                    tr.classList.add("hidden");
                 }
-            }
+            });
 
-            // 🔹 Kalau keduanya gagal (input campuran)
-            if (!isBarcode && !/[a-z]/.test(value)) {
-                notFoundMsg.textContent = "Maaf, pencarian berdasarkan nama dan barcode tidak ditemukan.";
+            if (foundCount === 0) {
+                notFoundMsg.textContent = "Maaf, pencarian berdasarkan nama tidak ditemukan.";
                 notFoundMsg.classList.remove("hidden");
+            } else {
+                notFoundMsg.classList.add("hidden");
             }
         });
+
     }
 
     
@@ -656,6 +677,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // 🔹 kirim manual
             nearestForm.submit();
+        });
+    }
+
+    if (searchInput && clearBtn) {
+        // Tampilkan tombol X kalau ada teks
+        searchInput.addEventListener("input", () => {
+            if (searchInput.value.trim() !== "") {
+            clearBtn.classList.remove("hidden");
+            } else {
+            clearBtn.classList.add("hidden");
+            }
+        });
+
+        // Klik tombol X → hapus teks & sembunyikan tombol
+        clearBtn.addEventListener("click", () => {
+            searchInput.value = "";
+            clearBtn.classList.add("hidden");
+
+            // Tampilkan semua baris kembali
+            const tableBody = document.getElementById("products-table-body");
+            tableBody.querySelectorAll("tr").forEach(tr => tr.classList.remove("hidden"));
+
+            // sembunyikan pesan not found
+            const notFoundMsg = document.getElementById("not-found-msg");
+            if (notFoundMsg) notFoundMsg.classList.add("hidden");
+
+            // fokus kembali ke search
+            searchInput.focus();
         });
     }
 

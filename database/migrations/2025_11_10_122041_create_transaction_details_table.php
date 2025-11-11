@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transaction_details', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('transaction_id');
-            $table->foreign('transaction_id')->references('id')->on('transactions')->cascadeOnDelete();
+            $table->foreign('transaction_id')->references('id')->on('transactions')->restrictOnDelete();
             $table->uuid('menu_id');
             $table->foreign('menu_id')->references('id')->on('menus')->cascadeOnDelete();
             $table->integer('quantity');

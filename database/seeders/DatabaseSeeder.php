@@ -2,16 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\Models\User;
 use App\Models\Menu;
-use App\Models\Ingredient;
+use App\Models\User;
 use App\Models\Recipe;
+use App\Models\Ingredient;
 use App\Models\Transaction;
-use App\Models\Transaction_Detail;
+use Illuminate\Support\Str;
 use App\Models\Stock_Mutation;
+use Illuminate\Database\Seeder;
+use App\Models\Transaction_Detail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,6 +20,15 @@ class DatabaseSeeder extends Seeder
     {
         // 1️⃣ Users
         $users = User::factory()->count(5)->create();
+
+         User::create([
+            'id' => Str::uuid(), // kalau kamu pakai UUID
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password123'), // hash password
+            'email_verified_at' => now(),
+        ]);
+
 
         // 2️⃣ Ingredients (bahan baku)
         $ingredients = [

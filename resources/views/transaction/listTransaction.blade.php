@@ -1,5 +1,6 @@
 <x-layout-admin>
-          <section id="tables" class="mb-12">
+          -xl shadow-lg overflow-hidden"
+                  ><section id="tables" class="mb-12">
             <div class="glass-effect rounded-2xl p-6 shadow-xl">
               <div class="flex items-center mb-6">
                 <div
@@ -8,11 +9,11 @@
                   <i class="fa-solid fa-boxes-packing text-lg"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800">
-                  Data Produk 
+                  Data Transaksi 
                 </h2>
-                <a class="ml-auto px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium" href="/dashboard/product/create"
+                <a class="ml-auto px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium" href="/dashboard/transaction/create"
                   >
-                    <i class="fas fa-plus mr-2"></i>Tambah Produk
+                    <i class="fas fa-plus mr-2"></i>Tambah Transaksi Baru
                 </a>
               </div>
               @foreach (['success', 'error'] as $msg)
@@ -43,90 +44,61 @@
               <!-- Large Table -->
               <div>
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
-                  Data Produk Yang Di Jual
+                  Data Transaksi Yang Telah Dilakukan
                 </h3>
                 <div class="overflow-x-auto">
                   <table
-                    class="w-full bg-white rounded-xl shadow-lg overflow-hidden"
-                  >
+                    class="w-full bg-white rounded
                     <thead class="bg-gradient-to-r from-emerald-50 to-green-50">
                       <tr>
                         <th
                           class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
                         >
-                          Nama Produk
+                          Kode Transaksi
                         </th>
                         <th
                           class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
                         >
-                          Kategori
+                          Total Transaksi
                         </th>
                         <th
                           class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
                         >
-                          Harga Beli
+                          Metode Pembayaran
                         </th>
                         <th
                           class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
                         >
-                          Harga Jual
+                          Dibuat Oleh
                         </th>
                         <th
                           class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
                         >
-                          Stock
-                        </th>
-                        <th
-                          class="px-6 py-4 text-left text-sm font-semibold text-emerald-800"
-                        >
-                          Actions
+                          Waktu
                         </th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                      @foreach ( $products as $product )
+                      @foreach ( $transactions as $transaction )
                       <tr class="table-row-hover">
                         <td class="px-6 py-4 text-sm font-medium text-gray-800">
-                          {{ $product->name }}
+                          {{ $transaction->transaction_code }}
                         </td>
                         <td class="px-6 py-4 text-sm font-medium text-gray-800">
-                          {{ $product->category->name }}
+                          {{ $transaction->total_price }}
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-800">
-                          Rp. {{ $product->purchase_price }}
+                        <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                          {{ $transaction->payment_method }}
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
-                          Rp. {{ $product->selling_price }}
+                        <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                          {{ $transaction->user_id }}
                         </td>
-                        <td class="px-6 py-4">
-                          <span
-                            class="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full"
-                            >{{ $product->stock }}</span
-                          >
-                        </td>
-                        <td class="px-6 py-4">
-                          <div class="flex space-x-2">
-                            <a href="/dashboard/product/{{ $product->id }}/edit">
-                              <button
-                                class="text-yellow-600 hover:text-yellow-800 text-sm"
-                              >
-                                <i class="fa-solid fa-pen-to-square"></i>
-                              </button>
-                            </a>
-                            <form method="POST" action="/dashboard/product/{{ $product->id }}">
-                              @csrf
-                              @method('DELETE')
-                              <button type="submit"
-                                class="text-red-600 hover:text-red-800 text-sm"
-                              >
-                                <i class="fa-solid fa-trash"></i>
-                              </button>
-                            </form>
-                          </div>
+                        <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                          {{ $transaction->created_at }}
                         </td>
                       </tr>
                       @endforeach
-                    </tbody>
+                    </tbody> 
                   </table>
                 </div>
               </div>

@@ -4,115 +4,27 @@
             <div class="xl:col-span-2">
               <div class="glass-effect rounded-2xl p-6 shadow-xl">
                 <!-- Header with Search and Filters -->
-                <div
-                  class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 space-y-4 lg:space-y-0"
-                >
-                  
-                  <div
-                    class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3"
-                  >
-                    <!-- Search Input -->
-                    <div class="relative">
-                      <input
-                        type="text"
-                        id="search-input"
-                        placeholder="Cari produk..."
-                        class="custom-input pl-10 pr-4 py-3 rounded-xl w-full sm:w-64 text-sm"
-                      />
-                      <i
-                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      ></i>
-                    </div>
-                    <!-- Category Filter -->
-                    <div class="custom-dropdown" id="category-dropdown">
-                      <button
-                        type="button"
-                        class="custom-dropdown-button text-sm"
-                        onclick="toggleDropdown('category-dropdown')"
-                      >
-                        <span id="category-selected">Semua Kategori</span>
-                        <i
-                          class="fas fa-chevron-down custom-dropdown-arrow"
-                        ></i>
-                      </button>
-                      <div class="custom-dropdown-menu hidden">
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('', 'Semua Kategori')"
-                        >
-                          Semua Kategori
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('keychains', 'Gantungan Kunci')"
-                        >
-                          Gantungan Kunci
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('magnets', 'Magnet')"
-                        >
-                          Magnet
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('postcards', 'Kartu Pos')"
-                        >
-                          Kartu Pos
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('clothing', 'Pakaian')"
-                        >
-                          Pakaian
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectCategory('mugs', 'Mug &amp; Gelas')"
-                        >
-                          Mug &amp; Gelas
-                        </div>
-                      </div>
-                    </div>
-                    <!-- Sort Filter -->
-                    <div class="custom-dropdown" id="sort-dropdown">
-                      <button
-                        type="button"
-                        class="custom-dropdown-button text-sm"
-                        onclick="toggleDropdown('sort-dropdown')"
-                      >
-                        <span id="sort-selected">Nama A-Z</span>
-                        <i
-                          class="fas fa-chevron-down custom-dropdown-arrow"
-                        ></i>
-                      </button>
-                      <div class="custom-dropdown-menu hidden">
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectSort('name', 'Nama A-Z')"
-                        >
-                          Nama A-Z
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectSort('price-low', 'Harga Terendah')"
-                        >
-                          Harga Terendah
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectSort('price-high', 'Harga Tertinggi')"
-                        >
-                          Harga Tertinggi
-                        </div>
-                        <div
-                          class="custom-dropdown-item"
-                          onclick="selectSort('category', 'Kategori')"
-                        >
-                          Kategori
-                        </div>
-                      </div>
-                    </div>
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full mb-6">
+                  <!-- Search Input -->
+                  <div class="relative flex-1 w-full">
+                    <input
+                      type="text"
+                      id="search-input"
+                      placeholder="Cari Menu Berdasarkan Nama"
+                      class="custom-input pl-10 pr-10 py-3 rounded-xl w-full text-sm"
+                    />
+                    <!-- Icon search -->
+                    <i
+                      class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    ></i>
+                    <!-- Icon X untuk clear -->
+                    <button
+                      type="button"
+                      id="clear-search"
+                      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
                   </div>
                 </div>
                 <!-- Products Table -->
@@ -123,12 +35,7 @@
                         <th
                           class="px-3 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-emerald-800"
                         >
-                          Barcode
-                        </th>
-                        <th
-                          class="px-3 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-emerald-800"
-                        >
-                          Nama
+                          Nama Manu
                         </th>
                         <th
                           class="px-3 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-emerald-800"
@@ -136,14 +43,9 @@
                           Harga
                         </th>
                         <th
-                          class="px-3 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-emerald-800 hidden sm:table-cell"
-                        >
-                          Kategori
-                        </th>
-                        <th
                           class="px-3 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-emerald-800"
                         >
-                          Stok
+                          Sisa Porsi
                         </th>
                         <th
                           class="px-3 lg:px-6 py-3 lg:py-4 text-center text-xs lg:text-sm font-semibold text-emerald-800"

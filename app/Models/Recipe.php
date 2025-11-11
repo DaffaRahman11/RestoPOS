@@ -9,7 +9,7 @@ class Recipe extends BaseModel
 {
     /** @use HasFactory<\Database\Factories\RecipeFactory> */
     use HasFactory;
-
+    protected $keyType = 'string';
     public function menu()
     {
         return $this->belongsTo(Menu::class);

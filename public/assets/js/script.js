@@ -121,17 +121,18 @@
       }
 
       // POS Dropdown functionality
-      function togglePOSDropdown() {
-        const dropdown = document.getElementById("pos-dropdown");
-        const arrow = document.getElementById("pos-arrow");
+      function togglePOSDropdown(btn) {
+          // btn = tombol yang diklik
+          const dropdown = btn.parentElement.querySelector(".pos-dropdown");
+          const arrow = btn.querySelector(".pos-arrow");
 
-        dropdown.classList.toggle("hidden");
+          dropdown.classList.toggle("hidden");
 
-        if (dropdown.classList.contains("hidden")) {
-          arrow.style.transform = "rotate(0deg)";
-        } else {
-          arrow.style.transform = "rotate(180deg)";
-        }
+          if (dropdown.classList.contains("hidden")) {
+              arrow.style.transform = "rotate(0deg)";
+          } else {
+              arrow.style.transform = "rotate(180deg)";
+          }
       }
 
       function toggleSidebar() {
@@ -271,66 +272,52 @@
       }
 
       function toggleNotifications() {
-        const dropdown = document.getElementById("notification-dropdown");
-        const profileDropdown = document.getElementById("profile-dropdown");
+          const btn = document.getElementById("notification-btn");
+          const dropdown = document.getElementById("notification-dropdown");
+          const rect = btn.getBoundingClientRect();
 
-        // Close profile dropdown if open
-        profileDropdown.classList.add("hidden");
+          dropdown.style.position = "fixed"; // fixed supaya selalu di atas
+          dropdown.style.top = rect.bottom + "px";
+          
+          // Geser lebih ke kiri
+          dropdown.style.left = rect.left + rect.width - dropdown.offsetWidth - 320 + "px"; 
+          // angka -10 bisa diubah sesuai kebutuhan
 
-        // Toggle notification dropdown
-        dropdown.classList.toggle("hidden");
+          dropdown.classList.toggle("hidden");
       }
+
+
 
       function toggleProfileMenu() {
-        const dropdown = document.getElementById("profile-dropdown");
-        const notificationDropdown = document.getElementById(
-          "notification-dropdown"
-        );
+          const btn = document.getElementById("profile-btn");
+          const dropdown = document.getElementById("profile-dropdown");
+          const rect = btn.getBoundingClientRect();
 
-        // Close notification dropdown if open
-        notificationDropdown.classList.add("hidden");
+          dropdown.style.position = "fixed"; // fixed supaya selalu di atas
+          dropdown.style.top = rect.bottom + "px"; // di bawah tombol
+          dropdown.style.left = rect.right - dropdown.offsetWidth -220 + "px"; // geser kiri sesuai lebar dropdown
 
-        // Toggle profile dropdown
-        dropdown.classList.toggle("hidden");
+          // Toggle visibility
+          dropdown.classList.toggle("hidden");
+
+          // Tutup dropdown jika klik di luar
+          document.addEventListener("click", function handler(e) {
+              if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                  dropdown.classList.add("hidden");
+                  document.removeEventListener("click", handler);
+              }
+          });
       }
+
 
       function logout() {
-        // Show logout confirmation
-        const confirmMsg = document.createElement("div");
-        confirmMsg.className =
-          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
-        confirmMsg.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Confirm Logout</h3>
-                    <p class="text-gray-600 mb-6">Are you sure you want to logout?</p>
-                    <div class="flex space-x-3">
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                            Cancel
-                        </button>
-                        <button onclick="performLogout()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            `;
-        document.body.appendChild(confirmMsg);
+          // Tampilkan modal logout
+          document.getElementById('logout-modal').classList.remove('hidden');
       }
 
-      function performLogout() {
-        // Remove confirmation dialog
-        document.querySelector(".fixed.inset-0").remove();
-
-        // Show logout success message
-        const successMsg = document.createElement("div");
-        successMsg.className =
-          "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
-        successMsg.textContent = "Logged out successfully!";
-        document.body.appendChild(successMsg);
-
-        setTimeout(() => {
-          successMsg.remove();
-          // In a real app, this would redirect to login page
-        }, 2000);
+      function cancelLogout() {
+          // Sembunyikan modal logout
+          document.getElementById('logout-modal').classList.add('hidden');
       }
 
       // Top-right alert functions

@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Menu;
 use App\Models\Recipe;
+use App\Models\Ingredient;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MenuController extends Controller
 {
@@ -12,7 +17,63 @@ class MenuController extends Controller
      */
     public function index()
     {
-        //
+         
+         try {
+            // Ambil data dari tabel recipes beserta relasi menu dan ingredient
+            $recipes = Recipe::with(['menu', 'ingredient'])->latest()->get();
+
+            // Group data berdasarkan menu
+            $menus = $recipes->groupBy('menu_id')->map(function ($group) {
+                return [
+                    'menu_name' => $group->first()->menu->name ?? null,
+                    'menu_price' => $group->first()->menu->price ?? null,
+                    'menu_id' => $group->first()->menu->id ?? null,
+                    'ingredients' => $group->map(function ($item) {
+                        return [
+                            'ingredient_name' => $item->ingredient->name ?? null,
+                            'quantity_used' => $item->quantity_used,
+                        ];
+                    })
+                ];
+            });
+
+            // Cek kalau data kosong
+            if ($menus->isEmpty()) {
+                return redirect()->back()->with('error', 'Menu tidak ditemukan.');
+            }
+
+            // Kirim data ke view
+            return view('menu.listMenu', compact('menus'));
+        } catch (\Exception $e) {
+            abort(404);
+        }
+
+        // // Ambil semua data recipe beserta relasi menu dan ingredient
+        //     $recipes = Recipe::with(['menu', 'ingredient'])->get();
+
+        //     // Ubah data menjadi format JSON yang hanya berisi field yang kamu butuhkan
+        //     $data = $recipes->map(function ($recipe) {
+        //         return [
+        //             'menu_name' => $recipe->menu->name ?? null,
+        //             'menu_price' => $recipe->menu->price ?? null,
+        //             'ingredient_name' => $recipe->ingredient->name ?? null,
+        //             'quantity_used' => $recipe->quantity_used,
+        //         ];
+        //     });
+
+        //     return response()->json([
+        //         'success' => true,
+        //         'data' => $data
+        //     ]);
+
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Terjadi kesalahan saat mengambil data',
+        //         'error' => $e->getMessage()
+        //     ], 500);
+        // }
+
     }
 
     /**
@@ -20,7 +81,18 @@ class MenuController extends Controller
      */
     public function create()
     {
-        //
+        try{
+
+            $ingredients = Ingredient::select('id', 'name')->get();
+            return view('menu.createMenu', compact ('ingredients'));
+
+            if(!$ingredients){
+                return redirect()->back()->with('error', 'Mohon Inputkan Data Bahan Baku Terlebih Dahulu.');
+            }
+
+        }catch (\Exception $e){
+            abort(404);
+        }
     }
 
     /**
@@ -28,8 +100,45 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.ingredient_id' => 'required|uuid|exists:ingredients,id',
+            'ingredients.*.quantity_used' => 'required|numeric|min:1',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Simpan menu baru
+            $menu = Menu::create([
+                'name' => $validated['name'],
+                'price' => $validated['price'],
+            ]);
+
+            // Simpan semua bahan ke tabel recipes
+            foreach ($validated['ingredients'] as $ingredient) {
+                Recipe::create([
+                    'menu_id' => $menu->id,
+                    'ingredient_id' => $ingredient['ingredient_id'],
+                    'quantity_used' => $ingredient['quantity_used'],
+                ]);
+            }
+
+            DB::commit();
+            return redirect()
+                ->route('menu.index')
+                ->with('success', 'Menu "' . $menu->name . '" berhasil disimpan!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan menu: ' . $e->getMessage());
+        }
     }
+
 
     /**
      * Display the specified resource.
@@ -42,10 +151,32 @@ class MenuController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Recipe $recipe)
+    public function edit($menuId)
     {
-        //
+        try {
+            // Gunakan relasi yang benar
+            $menu = Menu::with(['recipe.ingredient'])->findOrFail($menuId);
+
+            $ingredientsData = $menu->recipe->map(function($recipe) {
+                return [
+                    'ingredient_id' => $recipe->ingredient_id,
+                    'quantity_used' => $recipe->quantity_used,
+                ];
+            });
+
+            return view('menu.editMenu', [
+                'menu' => $menu,
+                'ingredientsData' => $ingredientsData,
+                'allIngredients' => Ingredient::all()
+            ]);
+
+        } catch (\Exception $e) {
+            abort(404);
+        }
     }
+
+
+
 
     /**
      * Update the specified resource in storage.
@@ -58,8 +189,73 @@ class MenuController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Recipe $recipe)
+    public function destroy(Menu $menu)
     {
-        //
+        try {
+            DB::beginTransaction();
+
+            $menuName = $menu->name;
+
+            // Hapus semua resep (bahan) yang terkait dengan menu ini
+            Recipe::where('menu_id', $menu->id)->delete();
+
+            // Hapus menu-nya sendiri
+            $menu->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->back()
+                ->with('success', 'Menu "' . $menuName . '" dan semua bahan terkait berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus menu: ' . $e->getMessage());
+        }
     }
+
+    public function getMenuData(): JsonResponse
+    {
+        try {
+            // Ambil semua menu beserta relasi recipe & ingredient
+            $menus = Menu::with(['recipe.ingredient'])->get();
+
+            $data = $menus->map(function ($menu) {
+                $maxPortion = null;
+
+                // Cek apakah menu punya recipe / bahan baku
+                if ($menu->recipe->isNotEmpty()) {
+                    // Hitung porsi maksimum = min stok semua bahan
+                    $maxPortion = $menu->recipe
+                        ->map(fn($recipe) => $recipe->ingredient?->stock ?? 0)
+                        ->min();
+                } else {
+                    // Jika tidak ada bahan, set maxPortion = 0
+                    $maxPortion = 0;
+                }
+
+                return [
+                    'id' => $menu->id,
+                    'name' => $menu->name,
+                    'price' => $menu->price,
+                    'max_portion' => $maxPortion,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data menu',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    
 }

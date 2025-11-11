@@ -1,6 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\MenuController;
 
-Route::get('/products/getData', [ProductController::class, 'getProductData']);
+Route::get('/menus/getData', [MenuController::class, 'getMenuData']);

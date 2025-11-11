@@ -195,8 +195,12 @@
                 </div>
                 <h1 id="page-title" class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
                 <p id="page-subtitle" class="text-gray-600 font-medium">Sign in to your account</p>
-            </div><!-- Login Form -->
-            <form id="login-form" class="space-y-6"><!-- Email Input -->
+            </div>
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-6" method="POST" action="/login">
+                @csrf
+                @method('POST')
+                <!-- Email Input -->
                 <div class="input-group"><label for="email" id="email-label" class="input-label">Email
                         Address</label>
                     <div class="relative"><input type="email" id="email" name="email" required
@@ -210,7 +214,8 @@
                             </svg>
                         </div>
                     </div>
-                </div><!-- Password Input -->
+                </div>
+                <!-- Password Input -->
                 <div class="input-group"><label for="password" id="password-label" class="input-label">Password</label>
                     <div class="relative"><input type="password" id="password" name="password" required
                             class="form-input w-full px-4 py-3 pl-12 pr-12 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-gray-800 font-medium bg-white"
@@ -239,11 +244,12 @@
                             </svg></button>
                     </div>
                 </div>
-                <!-- Login Button --> 
+                <!-- Login Button -->
                 <button type="submit"
                     class="login-button w-full py-3 px-6 text-white font-semibold rounded-xl shadow-lg"> <span
                         id="login-button-text">Sign In</span> </button>
-            </form><!-- Additional Links -->
+            </form>
+            <!-- Additional Links -->
         </div>
     </div>
     <script>
@@ -273,7 +279,7 @@
                 document.getElementById('page-subtitle').textContent = config.page_subtitle || defaultConfig
                     .page_subtitle;
                 document.getElementById('email-label').textContent = config.email_label || defaultConfig
-                .email_label;
+                    .email_label;
                 document.getElementById('password-label').textContent = config.password_label || defaultConfig
                     .password_label;
                 document.getElementById('login-button-text').textContent = config.login_button_text || defaultConfig
@@ -300,7 +306,7 @@
                 // Update button gradient
                 const loginButton = document.querySelector('.login-button');
                 loginButton.style.background =
-                `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+                    `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
 
                 // Update hover styles
                 const style = document.createElement('style');
@@ -438,8 +444,7 @@
             }
         }
 
-        // Form submission handler
-        function handleLogin(event) {
+       
             event.preventDefault();
 
             const email = document.getElementById('email').value;

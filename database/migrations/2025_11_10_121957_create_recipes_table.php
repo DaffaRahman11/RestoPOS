@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('menu_id');
             $table->foreign('menu_id')->references('id')->on('menus')->cascadeOnDelete();
             $table->uuid('ingredient_id');
-            $table->foreign('ingredient_id')->references('id')->on('ingredients')->cascadeOnDelete();
+            $table->foreign('ingredient_id')->references('id')->on('ingredients')->restrictOnDelete();
             $table->integer('quantity_used');
             $table->timestamps();
             $table->softDeletes();
