@@ -19,10 +19,9 @@ class MenuController extends Controller
     {
          
          try {
-            // Ambil data dari tabel recipes beserta relasi menu dan ingredient
             $recipes = Recipe::with(['menu', 'ingredient'])->latest()->get();
 
-            // Group data berdasarkan menu
+ 
             $menus = $recipes->groupBy('menu_id')->map(function ($group) {
                 return [
                     'menu_name' => $group->first()->menu->name ?? null,
@@ -111,13 +110,11 @@ class MenuController extends Controller
         try {
             DB::beginTransaction();
 
-            // Simpan menu baru
             $menu = Menu::create([
                 'name' => $validated['name'],
                 'price' => $validated['price'],
             ]);
 
-            // Simpan semua bahan ke tabel recipes
             foreach ($validated['ingredients'] as $ingredient) {
                 Recipe::create([
                     'menu_id' => $menu->id,
@@ -154,7 +151,6 @@ class MenuController extends Controller
     public function edit($menuId)
     {
         try {
-            // Gunakan relasi yang benar
             $menu = Menu::with(['recipe.ingredient'])->findOrFail($menuId);
 
             $ingredientsData = $menu->recipe->map(function($recipe) {
@@ -196,10 +192,9 @@ class MenuController extends Controller
 
             $menuName = $menu->name;
 
-            // Hapus semua resep (bahan) yang terkait dengan menu ini
             Recipe::where('menu_id', $menu->id)->delete();
 
-            // Hapus menu-nya sendiri
+            
             $menu->delete();
 
             DB::commit();
@@ -218,20 +213,16 @@ class MenuController extends Controller
     public function getMenuData(): JsonResponse
     {
         try {
-            // Ambil semua menu beserta relasi recipe & ingredient
             $menus = Menu::with(['recipe.ingredient'])->get();
 
             $data = $menus->map(function ($menu) {
                 $maxPortion = null;
 
-                // Cek apakah menu punya recipe / bahan baku
                 if ($menu->recipe->isNotEmpty()) {
-                    // Hitung porsi maksimum = min stok semua bahan
                     $maxPortion = $menu->recipe
                         ->map(fn($recipe) => $recipe->ingredient?->stock ?? 0)
                         ->min();
                 } else {
-                    // Jika tidak ada bahan, set maxPortion = 0
                     $maxPortion = 0;
                 }
 

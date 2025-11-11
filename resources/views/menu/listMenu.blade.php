@@ -39,8 +39,7 @@
                       </div>
                   @endif
               @endforeach
-                  
-              <!-- Large Table -->
+              
               <div>
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Data Menu Yang Di Jual
@@ -107,11 +106,6 @@
                             @if ($index === 0)
                               <td class="px-6 py-4" rowspan="{{ $rowspan }}">
                                 <div class="flex space-x-2">
-                                  <a href="/dashboard/menu/{{ $menu['menu_id'] }}/edit">
-                                    <button class="text-yellow-600 hover:text-yellow-800 text-sm">
-                                      <i class="fa-solid fa-pen-to-square"></i>
-                                    </button>
-                                  </a>
                                   <form method="POST" action="/dashboard/menu/{{ $menu['menu_id'] }}">
                                     @csrf
                                     @method('DELETE')

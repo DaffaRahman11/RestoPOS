@@ -35,7 +35,6 @@
                       </div>
                   @endif
               @endforeach
-              <!-- Medium Form Card -->
               <div class="mb-8" 
                   x-data="{
                       ingredients: @json(count($ingredientsData) ? $ingredientsData->toArray() : [['ingredient_id' => '', 'quantity_used' => '']])
@@ -153,7 +152,6 @@
                   </form>
               </div>
 
-              {{-- Pastikan Alpine.js sudah terpasang --}}
               <script src="//unpkg.com/alpinejs" defer></script>
             </div>
           </section>

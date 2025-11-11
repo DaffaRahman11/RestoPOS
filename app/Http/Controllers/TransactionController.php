@@ -69,13 +69,11 @@ class TransactionController extends Controller
             return back()->with('error', 'Tidak ada produk yang dipilih.');
         }
 
-        // 1️⃣ Hitung kebutuhan total per ingredient
-        $ingredientNeeds = []; // key = ingredient_id, value = total qty needed
+        $ingredientNeeds = [];
         foreach ($items as $item) {
             $menuId = $item['id'];
             $qty = $item['qty'];
 
-            // ambil resep untuk menu ini
             $recipes = Recipe::where('menu_id', $menuId)->get();
 
             foreach ($recipes as $recipe) {
@@ -90,7 +88,6 @@ class TransactionController extends Controller
             }
         }
 
-        // 2️⃣ Cek stok bahan
         $insufficient = [];
         foreach ($ingredientNeeds as $ingredientId => $neededQty) {
             $ingredient = Ingredient::find($ingredientId);
@@ -106,10 +103,8 @@ class TransactionController extends Controller
             return back()->with('error', 'Stok bahan tidak cukup: ' . implode(', ', $insufficient));
         }
 
-        // 3️⃣ Proses transaksi atomik
         DB::beginTransaction();
         try {
-            // 3a. Kurangi stok dan catat mutasi
             foreach ($ingredientNeeds as $ingredientId => $neededQty) {
                 $ingredient = Ingredient::find($ingredientId);
                 $ingredient->stock -= $neededQty;
@@ -124,7 +119,6 @@ class TransactionController extends Controller
                 ]);
             }
 
-            // 3b. Simpan transaksi
             $transaction = Transaction::create([
                 'total_price' => $request->total_price,
                 'paid_amount' => $request->paid_amount,
@@ -133,7 +127,6 @@ class TransactionController extends Controller
                 'user_id' => Auth::id() ?? null,
             ]);
 
-            // 3c. Simpan detail transaksi
             foreach ($items as $item) {
                 $menuId = $item['id'];
                 $qty = $item['qty'];

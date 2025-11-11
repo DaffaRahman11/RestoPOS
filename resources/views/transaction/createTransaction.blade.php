@@ -1,6 +1,6 @@
 <x-layout-admin>
               <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <!-- Products Section -->
+
             <div class="xl:col-span-2">
               <div class="glass-effect rounded-2xl p-6 shadow-xl">
                 <!-- Header with Search and Filters -->
@@ -107,48 +107,6 @@
                       class="max-h-64 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-emerald-100"
                     >
                       <div id="checkout-items-list" class="space-y-3">
-                        <!-- Items will be rendered here -->
-{{--                         <div class="checkout-item bg-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm">
-                          <div class="flex items-center justify-between mb-2">
-                            <span class="font-medium text-gray-800 text-sm">
-                              <!-- item.name -->
-                            </span>
-                            <button
-                              class="text-red-500 hover:text-red-700 hover:bg-red-100 rounded-lg w-7 h-7 flex items-center justify-center transition-all duration-200 group"
-                            >
-                              <i class="fas fa-trash text-xs group-hover:scale-110 transition-transform"></i>
-                            </button>
-                          </div>
-
-                          <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                              <button
-                                class="w-7 h-7 bg-emerald-200 hover:bg-emerald-300 rounded-lg text-xs font-bold transition-colors text-emerald-700 hover:text-emerald-800"
-                              >
-                                -
-                              </button>
-
-                              <input
-                                type="number"
-                                value="0"
-                                min="0"
-                                max="10"
-                                placeholder="0"
-                                class="w-12 h-7 text-center font-medium border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none text-xs"
-                              >
-
-                              <button
-                                class="w-7 h-7 bg-emerald-200 hover:bg-emerald-300 rounded-lg text-xs font-bold transition-colors text-emerald-700 hover:text-emerald-800"
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            <span class="font-semibold text-emerald-700 text-sm">
-                              Rp0
-                            </span>
-                          </div>
-                        </div> --}}
                       </div>
                     </div>
                   </div>
@@ -267,5 +225,4 @@
             
           </div>
 
-          {{-- <script src="{{ asset('assets/js/scriptTransaction.js') }}"></script> --}}
 </x-layout-admin>

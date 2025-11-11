@@ -317,7 +317,7 @@
 {{--   <script src="{{ asset(Route::is('dashboard.transactions.create') ? 'assets/js/scriptTransaction.js' : 'assets/js/script.js') }}"></script> --}} 
 {{--   <script src="{{ asset('assets/js/scriptTransaction.js') }}"></script>  --}}
   <script src="{{ asset('assets/js/script.js') }}"></script>
-  <script src="{{ asset('assets/js/script2.js') }}"></script>
+  <script src="{{ asset('assets/js/scriptTransaction.js') }}"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       @if (session('success'))

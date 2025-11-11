@@ -18,19 +18,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1️⃣ Users
         $users = User::factory()->count(5)->create();
 
          User::create([
-            'id' => Str::uuid(), // kalau kamu pakai UUID
+            'id' => Str::uuid(),
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'password' => Hash::make('password123'), // hash password
+            'password' => Hash::make('password123'), 
             'email_verified_at' => now(),
         ]);
 
 
-        // 2️⃣ Ingredients (bahan baku)
         $ingredients = [
             ['name' => 'Beras', 'stock' => 10000],
             ['name' => 'Telur', 'stock' => 500],
@@ -57,7 +55,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 3️⃣ Menus (produk)
         $menus = [
             ['name' => 'Nasi Goreng Spesial', 'price' => 25000],
             ['name' => 'Ayam Geprek', 'price' => 22000],
@@ -89,7 +86,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 4️⃣ Recipes (resep menu)
+ 
         $allMenus = Menu::all();
         $allIngredients = Ingredient::all();
 
@@ -105,7 +102,7 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        // 5️⃣ Transactions + Details
+
         $users = User::all();
         $menus = Menu::all();
 
@@ -147,7 +144,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 6️⃣ Stock Mutations
+    
         $ingredients = Ingredient::all();
         foreach ($ingredients as $ing) {
             Stock_Mutation::create([

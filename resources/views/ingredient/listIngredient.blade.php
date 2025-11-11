@@ -39,8 +39,6 @@
                       </div>
                   @endif
               @endforeach
-                  
-              <!-- Large Table -->
               <div>
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">
                   Data Bahan Baku Yang Di Miliki

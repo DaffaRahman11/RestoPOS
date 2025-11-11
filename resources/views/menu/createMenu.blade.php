@@ -35,7 +35,6 @@
                       </div>
                   @endif
               @endforeach
-              <!-- Medium Form Card -->
               <div class="mb-8" x-data="{ ingredients: [{ ingredient_id: '', quantity_used: '' }] }">
                 <form method="POST" action="/dashboard/menu">
                   @csrf
@@ -43,7 +42,6 @@
                     Masukkan Data Menu Baru
                   </h3>
 
-                  {{-- Input Nama & Harga --}}
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">Nama Menu</label>
@@ -67,7 +65,6 @@
                     </div>
                   </div>
 
-                  {{-- Input Dinamis Bahan Baku --}}
                   <template x-for="(row, index) in ingredients" :key="index">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
@@ -98,7 +95,6 @@
                     </div>
                   </template>
 
-                  {{-- Tombol Tambah & Hapus --}}
                   <div class="flex gap-4 mb-6">
                     <button
                       type="button"
@@ -116,8 +112,6 @@
                       <i class="fa-solid fa-minus"></i> Hapus Baris Terakhir
                     </button>
                   </div>
-
-                  {{-- Tombol Submit & Reset --}}
                   <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div></div>
                     <div></div>
@@ -142,6 +136,5 @@
               </div>
             </div>
           </section>
-          {{-- CDN Alpine.js (kalau belum ada di layout) --}}
           <script src="//unpkg.com/alpinejs" defer></script>
 </x-layout-admin>

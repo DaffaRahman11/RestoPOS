@@ -11,7 +11,6 @@
                   Ubah Data Bahan Baku 
                 </h2>
               </div>
-              <!-- Medium Form Card -->
               <div class="mb-8">
                 <form method="POST" action="/dashboard/ingredient/{{ $ingredient->id }}">
                 @csrf
